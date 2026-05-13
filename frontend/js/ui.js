@@ -87,17 +87,32 @@ const UI = (() => {
     function updatePrices(newPrices) {
         prices = { ...prices, ...newPrices };
 
-        // Update asset list prices
+        // Update asset list prices in the sidebar
         document.querySelectorAll('.asset-item').forEach(el => {
             const sym = el.querySelector('.asset-symbol').textContent;
-            if (prices[sym]) {
-                el.querySelector('.asset-price').textContent = `$${prices[sym].toFixed(2)}`;
+            if (newPrices[sym]) {
+                const priceEl = el.querySelector('.asset-price');
+                const oldPrice = parseFloat(priceEl.textContent.replace('$', ''));
+                const newPrice = newPrices[sym];
+                
+                priceEl.textContent = `$${newPrice.toFixed(2)}`;
+                
+                // Add a visual flash effect for price changes
+                if (newPrice > oldPrice) {
+                    priceEl.style.color = 'var(--accent-green)';
+                } else if (newPrice < oldPrice) {
+                    priceEl.style.color = 'var(--accent-red)';
+                }
+                
+                setTimeout(() => {
+                    priceEl.style.color = 'var(--text-primary)';
+                }, 500);
             }
         });
 
         // Update chart header
-        if (prices[currentSymbol]) {
-            document.getElementById('chart-price').textContent = `$${prices[currentSymbol].toFixed(2)}`;
+        if (newPrices[currentSymbol]) {
+            document.getElementById('chart-price').textContent = `$${newPrices[currentSymbol].toFixed(2)}`;
         }
 
         // Update ticker
