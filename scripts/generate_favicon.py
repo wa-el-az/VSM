@@ -49,7 +49,13 @@ def create_favicon(output_path):
     
     # Save as ICO (including multiple sizes)
     img.save(output_path, format='ICO', sizes=[(16, 16), (32, 32), (48, 48), (64, 64), (128, 128), (256, 256)])
+    
+    # Also save as PNG
+    png_path = os.path.join(os.path.dirname(output_path), "icon.png")
+    img.save(png_path, format='PNG')
+    
     print(f"Favicon created at {output_path}")
+    print(f"PNG Icon created at {png_path}")
 
 if __name__ == "__main__":
     create_favicon("frontend/favicon.ico")
