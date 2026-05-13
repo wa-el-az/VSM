@@ -1,0 +1,15 @@
+[Unit]
+Description=Virtual Stock Market Backend
+After=network.target redis.service
+
+[Service]
+User=stock
+Group=stock
+WorkingDirectory=/var/www/stock.wael.work.gd/backend
+EnvironmentFile=/var/www/stock.wael.work.gd/config/.env
+ExecStart=/var/www/stock.wael.work.gd/venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000 --workers 4
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

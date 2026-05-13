@@ -1,0 +1,102 @@
+[
+    {
+        "event_id": "fed_rate_hike",
+        "name": "Federal Reserve Rate Hike",
+        "probability": 0.005,
+        "affected_sectors": ["banking", "real_estate"],
+        "drift_modifier": -0.15,
+        "volatility_modifier": 2.5,
+        "duration_ticks": 50,
+        "decay": "exponential"
+    },
+    {
+        "event_id": "tech_breakthrough",
+        "name": "Major Tech Breakthrough Announced",
+        "probability": 0.008,
+        "affected_sectors": ["technology", "media"],
+        "drift_modifier": 0.20,
+        "volatility_modifier": 2.0,
+        "duration_ticks": 40,
+        "decay": "exponential"
+    },
+    {
+        "event_id": "oil_crisis",
+        "name": "Global Oil Supply Disruption",
+        "probability": 0.003,
+        "affected_sectors": ["energy", "mining"],
+        "drift_modifier": -0.25,
+        "volatility_modifier": 3.0,
+        "duration_ticks": 60,
+        "decay": "exponential"
+    },
+    {
+        "event_id": "pandemic_scare",
+        "name": "New Pandemic Strain Detected",
+        "probability": 0.002,
+        "affected_sectors": ["healthcare", "consumer", "aerospace"],
+        "drift_modifier": -0.30,
+        "volatility_modifier": 3.5,
+        "duration_ticks": 80,
+        "decay": "exponential"
+    },
+    {
+        "event_id": "trade_deal",
+        "name": "Major International Trade Agreement",
+        "probability": 0.006,
+        "affected_sectors": ["agriculture", "consumer", "technology"],
+        "drift_modifier": 0.10,
+        "volatility_modifier": 1.5,
+        "duration_ticks": 30,
+        "decay": "exponential"
+    },
+    {
+        "event_id": "bank_collapse",
+        "name": "Regional Bank Collapse",
+        "probability": 0.002,
+        "affected_sectors": ["banking"],
+        "drift_modifier": -0.40,
+        "volatility_modifier": 4.0,
+        "duration_ticks": 70,
+        "decay": "exponential"
+    },
+    {
+        "event_id": "green_subsidy",
+        "name": "Government Green Energy Subsidy Package",
+        "probability": 0.007,
+        "affected_sectors": ["energy", "utilities", "agriculture"],
+        "drift_modifier": 0.12,
+        "volatility_modifier": 1.8,
+        "duration_ticks": 35,
+        "decay": "exponential"
+    },
+    {
+        "event_id": "earnings_season",
+        "name": "Earnings Season Volatility Spike",
+        "probability": 0.015,
+        "affected_sectors": ["technology", "banking", "healthcare", "consumer"],
+        "drift_modifier": 0.0,
+        "volatility_modifier": 2.2,
+        "duration_ticks": 20,
+        "decay": "exponential"
+    },
+    {
+        "event_id": "space_contract",
+        "name": "Government Space Defense Contract Awarded",
+        "probability": 0.004,
+        "affected_sectors": ["aerospace"],
+        "drift_modifier": 0.35,
+        "volatility_modifier": 2.0,
+        "duration_ticks": 25,
+        "decay": "exponential"
+    },
+    {
+        "event_id": "regulatory_crackdown",
+        "name": "Antitrust Regulatory Crackdown",
+        "probability": 0.004,
+        "affected_sectors": ["technology", "media"],
+        "drift_modifier": -0.20,
+        "volatility_modifier": 2.8,
+        "duration_ticks": 45,
+        "decay": "exponential"
+    }
+]
