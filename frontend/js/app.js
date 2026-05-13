@@ -86,8 +86,9 @@ const App = (() => {
 
         _connectWebSocket();
 
-        setInterval(_loadPortfolio, 10000);
-        setInterval(_loadEconomy, 30000);
+        // Refresh portfolio and economy stats more frequently to keep UI in sync
+        setInterval(_loadPortfolio, 3000); // Every 3 seconds
+        setInterval(_loadEconomy, 10000); // Every 10 seconds
     }
 
     async function _loadHistory(symbol) {
@@ -122,7 +123,13 @@ const App = (() => {
 
         ws.onopen = () => {
             reconnectDelay = 1000;
+            // Subscribe to the current chart symbol
             ws.send(JSON.stringify({ type: 'subscribe', symbol: UI.getCurrentSymbol() }));
+            
+            // Also subscribe to all assets to ensure sidebar/ticker stay live
+            assets.forEach(a => {
+                ws.send(JSON.stringify({ type: 'subscribe', symbol: a.symbol }));
+            });
 
             heartbeatInterval = setInterval(() => {
                 if (ws.readyState === WebSocket.OPEN) {
