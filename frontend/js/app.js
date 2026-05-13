@@ -163,6 +163,10 @@ const App = (() => {
                 }
                 break;
             }
+            case 'terminal': {
+                UI.updateTerminal(msg.payload);
+                break;
+            }
             case 'order_fill': {
                 _loadPortfolio();
                 const user = msg.payload;
@@ -191,6 +195,14 @@ const App = (() => {
             ws.send(JSON.stringify({ type: 'subscribe', symbol }));
         }
         await _loadHistory(symbol);
+    }
+
+    function sendTerminalCommand(command) {
+        if (ws && ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({ type: 'command', payload: { command } }));
+        } else {
+            UI.updateTerminal('Terminal offline. Reconnecting...');
+        }
     }
 
     async function _placeTrade() {
@@ -245,5 +257,5 @@ const App = (() => {
 
     document.addEventListener('DOMContentLoaded', boot);
 
-    return { onAssetSelected, requestTask, submitTask };
+    return { onAssetSelected, requestTask, submitTask, sendTerminalCommand };
 })();

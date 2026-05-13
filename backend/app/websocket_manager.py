@@ -125,6 +125,13 @@ class ConnectionManager:
             "payload": {},
         })
 
+    async def send_to_user(self, user_id: str, data: dict) -> None:
+        """Alias for send_personal for consistency."""
+        await self.send_personal(user_id, data)
+
+    def is_active(self, user_id: str) -> bool:
+        return user_id in self._connections
+
     @property
     def active_count(self) -> int:
         return len(self._connections)

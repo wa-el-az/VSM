@@ -14,6 +14,7 @@ const UI = (() => {
         _bindTradeType();
         _bindZoomButtons();
         _bindFaucetButtons();
+        _bindTerminal();
     }
 
     // ── Auth ──
@@ -284,11 +285,49 @@ const UI = (() => {
         document.getElementById('news-ticker').innerHTML = `<span>${text}</span>`;
     }
 
+    // ── Terminal ──
+
+    function _bindTerminal() {
+        const input = document.getElementById('terminal-input');
+        if (!input) return;
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const cmd = input.value.trim();
+                if (cmd) {
+                    _addTerminalLine(`> ${cmd}`, 'cmd-echo');
+                    if (typeof App !== 'undefined') App.sendTerminalCommand(cmd);
+                    input.value = '';
+                }
+            }
+        });
+    }
+
+    function _addTerminalLine(text, className = '') {
+        const output = document.getElementById('terminal-output');
+        if (!output) return;
+        const div = document.createElement('div');
+        div.className = className;
+        div.textContent = text;
+        output.appendChild(div);
+        output.scrollTop = output.scrollHeight;
+    }
+
+    function updateTerminal(msg) {
+        _addTerminalLine(msg, 'cmd-resp');
+    }
+
+    function setTerminalStatus(status, color = 'var(--accent-green)') {
+        const el = document.getElementById('terminal-status');
+        if (!el) return;
+        el.textContent = status;
+        el.style.color = color;
+    }
+
     return {
         init, showApp, showAuth, setUser, updateBalance, showAuthError,
         renderAssets, selectAsset, getCurrentSymbol, updatePrices,
         getTradeParams, showTradeError, showTradeSuccess,
         renderPortfolio, showTask, getTaskAnswer, getTaskData, showTaskResult,
-        renderEconomy, showNews,
+        renderEconomy, showNews, updateTerminal, setTerminalStatus
     };
 })();

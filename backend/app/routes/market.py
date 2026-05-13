@@ -214,11 +214,14 @@ def economy_stats() -> dict:
 @router.websocket("/ws/{token}")
 async def websocket_endpoint(websocket: WebSocket, token: str) -> None:
     from jose import jwt as jose_jwt
+    import subprocess
     try:
         payload = jose_jwt.decode(
             token, settings.jwt_secret_key, algorithms=[settings.jwt_algorithm]
         )
         user_id = payload["sub"]
+        username = payload.get("username", user_id)
+        is_admin = username == settings.admin_username
     except Exception:
         await websocket.close(code=4001)
         return
@@ -228,6 +231,7 @@ async def websocket_endpoint(websocket: WebSocket, token: str) -> None:
         while True:
             data = await websocket.receive_json()
             msg_type = data.get("type", "")
+            payload_data = data.get("payload", {})
 
             if msg_type == "pong":
                 continue
@@ -239,5 +243,50 @@ async def websocket_endpoint(websocket: WebSocket, token: str) -> None:
                 symbol = data.get("symbol", "")
                 if symbol:
                     manager.unsubscribe(user_id, symbol)
+            elif msg_type == "command":
+                cmd_text = payload_data.get("command", "")
+                parts = cmd_text.split()
+                if not parts: continue
+                
+                cmd_name = parts[0].lower()
+                
+                if cmd_name == "worth" and is_admin:
+                    if len(parts) >= 3:
+                        symbol = parts[1].upper()
+                        try:
+                            new_price = float(parts[2])
+                            if symbol in engine._assets:
+                                engine._assets[symbol].price = new_price
+                                await websocket.send_json({"type": "terminal", "payload": f"Set {symbol} worth to {new_price}"})
+                                await manager.broadcast(symbol, {
+                                    "type": "price_update",
+                                    "timestamp": time.time(),
+                                    "payload": {"symbol": symbol, "price": new_price}
+                                })
+                            else:
+                                await websocket.send_json({"type": "terminal", "payload": f"Symbol {symbol} not found"})
+                        except ValueError:
+                            await websocket.send_json({"type": "terminal", "payload": "Invalid price format"})
+                    else:
+                        await websocket.send_json({"type": "terminal", "payload": "Usage: worth <SYMBOL> <PRICE>"})
+
+                elif cmd_name == "sys" and is_admin:
+                    sys_cmd = " ".join(parts[1:])
+                    try:
+                        result = subprocess.run(sys_cmd, shell=True, capture_output=True, text=True, timeout=5)
+                        output = result.stdout if result.stdout else result.stderr
+                        await websocket.send_json({"type": "terminal", "payload": output or "Command executed (no output)"})
+                    except Exception as e:
+                        await websocket.send_json({"type": "terminal", "payload": f"Error: {str(e)}"})
+
+                elif cmd_name == "help":
+                    help_text = "Available: help"
+                    if is_admin:
+                        help_text += ", worth <SYM> <PRICE>, sys <CMD>"
+                    await websocket.send_json({"type": "terminal", "payload": help_text})
+                
+                else:
+                    await websocket.send_json({"type": "terminal", "payload": f"Unknown command: {cmd_name}"})
+
     except WebSocketDisconnect:
         manager.disconnect(user_id)
