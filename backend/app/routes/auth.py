@@ -98,5 +98,6 @@ def me(user: Annotated[dict, Depends(get_current_user)]) -> UserPublic:
         id=row["id"],
         username=row["username"],
         balance=row["balance"],
+        is_admin=row["username"] == settings.admin_username,
         created_at=row["created_at"],
     )

@@ -23,6 +23,10 @@ class Settings(BaseSettings):
     simulation_tick_interval: float = 1.0
     simulation_seed: int = 42
 
+    @property
+    def admin_username(self) -> str:
+        return "Wael"
+
     initial_player_balance: float = 10_000.0
 
     tax_buy_rate: float = 0.005

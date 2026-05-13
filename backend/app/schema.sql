@@ -128,13 +128,13 @@ CREATE TABLE IF NOT EXISTS economy_snapshots (
 -- ── Seed Data: Initial Assets ──
 
 INSERT OR IGNORE INTO assets (symbol, name, sector, base_price, mu, sigma) VALUES
+    ('AAPL',  'Apple Inc.',            'technology',   180.00, 0.04, 0.18),
+    ('MSFT',  'Microsoft Corp.',       'technology',   410.00, 0.05, 0.15),
+    ('GOOGL', 'Alphabet Inc.',         'technology',   150.00, 0.04, 0.20),
+    ('LNVGY', 'Lenovo Group Ltd.',     'technology',    15.00, 0.03, 0.25),
+    ('WAEL',  'WAEL Exclusive Corp',   'exclusive',   1000.00, 0.50, 0.05),
     ('NOVA',  'Nova Technologies',     'technology',   150.00, 0.08, 0.30),
     ('AQUA',  'AquaPure Systems',      'utilities',     45.00, 0.03, 0.12),
     ('BOLT',  'Bolt Energy Corp',      'energy',        78.00, 0.06, 0.25),
     ('PEAK',  'Peak Healthcare',       'healthcare',   210.00, 0.05, 0.18),
-    ('FLUX',  'Flux Financial Group',  'banking',      120.00, 0.07, 0.22),
-    ('ORBT',  'Orbit Aerospace',       'aerospace',    330.00, 0.10, 0.35),
-    ('GRIN',  'GreenField Agriculture','agriculture',   62.00, 0.04, 0.15),
-    ('LUXE',  'Luxe Retail Holdings',  'consumer',      95.00, 0.05, 0.20),
-    ('BYTE',  'ByteStream Media',      'media',         55.00, 0.09, 0.32),
-    ('IRON',  'IronClad Mining',       'mining',        88.00, 0.06, 0.28);
+    ('FLUX',  'Flux Financial Group',  'banking',      120.00, 0.07, 0.22);

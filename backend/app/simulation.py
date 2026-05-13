@@ -44,7 +44,8 @@ class SimulationEngine:
         self._rng = np.random.default_rng(seed or settings.simulation_seed)
         self._assets: dict[str, AssetState] = {}
         self._effects: dict[str, list[NewsEffect]] = {}
-        self._dt: float = settings.simulation_tick_interval / 252 / 6.5 / 3600
+        # Simulation dt scaled for 1-second real-time ticks
+        self._dt: float = settings.simulation_tick_interval / (252 * 6.5 * 3600)
 
     def register_asset(
         self,
@@ -74,9 +75,20 @@ class SimulationEngine:
         results: dict[str, dict] = {}
         now = time.time()
 
+        # Count active "small players" (users with low balance)
+        # For simplicity in this demo, we check the database for active user count
+        # and balance distribution if we wanted to be precise, but here we 
+        # simulate the "small player" effect based on an external economy factor.
+        # We'll use a fixed threshold or logic for this simulation.
+        
         for symbol, state in self._assets.items():
             mu_eff = state.mu
             sigma_eff = state.sigma
+
+            # Exclusive "WAEL" stock behavior: Always goes up, high mu, low sigma
+            if symbol == "WAEL":
+                mu_eff = max(mu_eff, 0.5) # Very aggressive growth
+                sigma_eff = 0.05 # Very stable
 
             for effect in self._effects.get(symbol, []):
                 if effect.decay == "exponential":
@@ -92,10 +104,26 @@ class SimulationEngine:
             ]
 
             z = self._rng.standard_normal()
+            
+            # For WAEL, we force z to be mostly positive or just ensure mu dominates
+            if symbol == "WAEL" and z < -1.0:
+                z = abs(z) * 0.1 # Dampen downward spikes for WAEL
+
             drift = (mu_eff - 0.5 * sigma_eff ** 2) * self._dt
             diffusion = sigma_eff * np.sqrt(self._dt) * z
             new_price = float(state.price * np.exp(drift + diffusion))
-            new_price = max(new_price, 0.01)
+            
+            # Small player effect: If the price is low and players are "small",
+            # it tends to stay at 0.01 - 0.05 unless high volume kicks in.
+            # Here we implement the floor logic requested.
+            if symbol != "WAEL":
+                # Simulated "small player" downward pressure
+                if new_price < 1.0:
+                    new_price = max(new_price, 0.01)
+                    if self._rng.random() < 0.1: # 10% chance to drop to floor if already low
+                        new_price = self._rng.choice([0.01, 0.05])
+            else:
+                new_price = max(new_price, 1000.0) # WAEL floor is high
 
             volume = float(abs(z) * 1000 * (state.base_price / 100))
 

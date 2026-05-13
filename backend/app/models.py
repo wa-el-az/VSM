@@ -49,6 +49,7 @@ class UserPublic(BaseModel):
     id: int
     username: str
     balance: float
+    is_admin: bool = False
     created_at: str
 
 
