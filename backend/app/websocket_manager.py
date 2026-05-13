@@ -49,12 +49,32 @@ class ConnectionManager:
             await self._redis.close()
 
     async def _redis_listener(self) -> None:
+        from app.simulation import engine
         try:
             async for message in self._pubsub.listen():
                 if message["type"] == "message":
                     data = json.loads(message["data"])
                     room = data.get("room", "__broadcast__")
-                    await self._broadcast_local(room, data.get("payload", {}))
+                    payload = data.get("payload", {})
+                    
+                    # Handle Admin Controls sent via Redis
+                    if payload.get("type") == "admin_control":
+                        control = payload.get("payload", {})
+                        if control.get("action") == "set_worth":
+                            symbol = control.get("symbol")
+                            price = control.get("price")
+                            if symbol in engine._assets:
+                                engine._assets[symbol].price = price
+                                logger.info("Admin set %s worth to %s", symbol, price)
+                                # Re-broadcast as a price update to all clients
+                                await self._broadcast_local("__broadcast__", {
+                                    "type": "price_update",
+                                    "timestamp": time.time(),
+                                    "payload": {"symbol": symbol, "price": price}
+                                })
+                        continue
+
+                    await self._broadcast_local(room, payload)
         except asyncio.CancelledError:
             pass
         except Exception as e:
