@@ -135,9 +135,15 @@ async def health() -> dict[str, str]:
 
 
 if FRONTEND_DIR.is_dir():
-    app.mount("/css", StaticFiles(directory=str(FRONTEND_DIR / "css")), name="css")
-    app.mount("/js", StaticFiles(directory=str(FRONTEND_DIR / "js")), name="js")
+    # Only mount if the subdirectories exist to avoid Starlette RuntimeError
+    if (FRONTEND_DIR / "css").is_dir():
+        app.mount("/css", StaticFiles(directory=str(FRONTEND_DIR / "css")), name="css")
+    if (FRONTEND_DIR / "js").is_dir():
+        app.mount("/js", StaticFiles(directory=str(FRONTEND_DIR / "js")), name="js")
 
     @app.get("/")
     async def serve_index():
-        return FileResponse(str(FRONTEND_DIR / "index.html"))
+        index_path = FRONTEND_DIR / "index.html"
+        if index_path.is_file():
+            return FileResponse(str(index_path))
+        return {"error": "index.html not found"}
