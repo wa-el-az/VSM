@@ -45,7 +45,8 @@ class SimulationEngine:
         self._assets: dict[str, AssetState] = {}
         self._effects: dict[str, list[NewsEffect]] = {}
         # Simulation dt scaled for 1-second real-time ticks
-        self._dt: float = settings.simulation_tick_interval / (252 * 6.5 * 3600)
+        # We simulate 1 hour of market time per real-time second to make moves visible
+        self._dt: float = settings.simulation_tick_interval / (252 * 24)
 
     def register_asset(
         self,
@@ -99,11 +100,17 @@ class SimulationEngine:
                 sigma_eff *= 1.0 + (effect.volatility_modifier - 1.0) * decay_factor
                 effect.remaining_ticks -= 1
 
+            # Mean reversion to base price (the 'not too random' part)
+            # Gently pulls the price back toward the base if it drifts too far
+            reversion_strength = 0.05 
+            mu_eff += reversion_strength * (state.base_price - state.price) / state.base_price
+
             self._effects[symbol] = [
                 e for e in self._effects.get(symbol, []) if e.remaining_ticks > 0
             ]
 
-            z = self._rng.standard_normal()
+            # Clip noise to avoid extreme outlier spikes
+            z = np.clip(self._rng.standard_normal(), -3.0, 3.0)
             
             # For WAEL, we force z to be mostly positive or just ensure mu dominates
             if symbol == "WAEL" and z < -1.0:
